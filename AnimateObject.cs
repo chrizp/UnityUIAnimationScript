@@ -2,7 +2,6 @@ using System.Collections;
 using UnityEngine;
 using UnityEditor;
 using UnityEngine.UI;
-using TMPro;
 
 public class AnimateObject : MonoBehaviour
 {
@@ -33,7 +32,7 @@ public class AnimateObject : MonoBehaviour
     //color
     [HideInInspector] public bool animateColor = false;
     [HideInInspector] public Gradient colorGradient = new Gradient();
-    [HideInInspector] public MonoBehaviour colorObj;
+    [HideInInspector] public Graphic colorObj;
 
     private float time = 0;
 
@@ -41,8 +40,7 @@ public class AnimateObject : MonoBehaviour
 
     private void Awake()
     {
-        if (colorObj == null) colorObj = gameObject.GetComponent<TMP_Text>();
-        if (colorObj == null) colorObj = gameObject.GetComponent<Image>();
+        if (colorObj == null) colorObj = gameObject.GetComponent<Graphic>();
 
         defaultPos = transform.localPosition;
     }
@@ -51,9 +49,9 @@ public class AnimateObject : MonoBehaviour
     {
         if (animateOnEnable) Animate();
     }
-    
+
     //call this method to animate object.
-    public void Animate()
+    public virtual void Animate()
     {
         if (!gameObject.activeInHierarchy) return;
 
@@ -83,11 +81,7 @@ public class AnimateObject : MonoBehaviour
             if (animateRotation) transform.rotation = Quaternion.Euler(0, 0, zRot.Evaluate(time));
 
             //color anim
-            if (animateColor)
-            {
-                if (colorObj.GetType() == typeof(TMP_Text)) ((TMP_Text)colorObj).color = colorGradient.Evaluate(time);
-                else if (colorObj.GetType() == typeof(Image)) ((Image)colorObj).color = colorGradient.Evaluate(time);
-            }
+            if (animateColor) colorObj.color = colorGradient.Evaluate(time);
 
             if (time >= 1)
             {
@@ -113,7 +107,6 @@ public class AnimateObjectEditor : Editor
     SerializedProperty yPos;
 
     SerializedProperty animateRotation;
-    SerializedProperty rotAnimSpeed;
     SerializedProperty zRot;
 
     SerializedProperty animateColor;
