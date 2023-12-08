@@ -6,42 +6,39 @@ using UnityEngine.UI;
 public class AnimateObject : MonoBehaviour
 {
     [Header("Animation Settings:")]
+    //loop the animation forever or not.
     public bool loop = false;
-    [Space(10)]
+    //if the animation should play each time the game object is enabled.
     public bool animateOnEnable = false;
+    //period in seconds, putting at 0.5 means it will animate in half a second and so on.
+    public float animationPeriod = 1;
 
-    [Space(10)]
-    //speed in seconds, putting at 0.5 means it will animate in half a second and so on.
-    public float animationSpeed = 1;
-
-    //scale
+    //scale variables
     [HideInInspector] public bool animateScale = false;
     [HideInInspector] public bool linkedScale = false;
     [HideInInspector] public AnimationCurve xScale = new AnimationCurve(new Keyframe(0f, 1f), new Keyframe(1f, 1f));
     [HideInInspector] public AnimationCurve yScale = new AnimationCurve(new Keyframe(0f, 1f), new Keyframe(1f, 1f));
 
-    //Pos
+    //position variables
     [HideInInspector] public bool animatePos = false;
     [HideInInspector] public AnimationCurve xPos = new AnimationCurve(new Keyframe(0f, 0f), new Keyframe(1f, 0f));
     [HideInInspector] public AnimationCurve yPos = new AnimationCurve(new Keyframe(0f, 0), new Keyframe(1f, 0f));
 
-    //rot
+    //rotation variables
     [HideInInspector] public bool animateRotation = false;
     [HideInInspector] public AnimationCurve zRot = new AnimationCurve(new Keyframe(0f, 0f), new Keyframe(1f, 0f));
 
-    //color
+    //color variables
     [HideInInspector] public bool animateColor = false;
     [HideInInspector] public Gradient colorGradient = new Gradient();
     [HideInInspector] public Graphic colorObj;
 
     private float time = 0;
-
     private Vector2 defaultPos;
 
     private void Awake()
     {
         if (colorObj == null) colorObj = gameObject.GetComponent<Graphic>();
-
         defaultPos = transform.localPosition;
     }
 
@@ -65,7 +62,7 @@ public class AnimateObject : MonoBehaviour
         while (true)
         {
             //increase time which is used in animating.
-            time += Time.deltaTime / animationSpeed;
+            time += Time.deltaTime / animationPeriod;
 
             //scale anim
             if (animateScale)
@@ -94,6 +91,7 @@ public class AnimateObject : MonoBehaviour
     }
 }
 
+#if UNITY_EDITOR
 [CustomEditor(typeof(AnimateObject))]
 public class AnimateObjectEditor : Editor
 {
@@ -191,3 +189,4 @@ public class AnimateObjectEditor : Editor
         serializedObject.ApplyModifiedProperties();
     }
 }
+#endif
