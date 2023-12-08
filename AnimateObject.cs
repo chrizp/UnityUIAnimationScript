@@ -73,7 +73,7 @@ public class AnimateObject : MonoBehaviour
             if (animateScale)
             {
                 if (linkedScale) transform.localScale = Vector2.one * xScale.Evaluate(time);
-                else if (linkedScale) transform.localScale = (Vector2.right * xScale.Evaluate(time)) + (Vector2.up * yScale.Evaluate(time));
+                else transform.localScale = (Vector2.right * xScale.Evaluate(time)) + (Vector2.up * yScale.Evaluate(time));
             }
 
             //pos anim
