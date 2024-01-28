@@ -10,8 +10,8 @@ public class AnimateObject : MonoBehaviour
     public bool loop = false;
     //if the animation should play each time the game object is enabled.
     public bool animateOnEnable = false;
-    //period in seconds, putting at 0.5 means it will animate in half a second and so on.
-    public float animationPeriod = 1;
+    //lifetime in seconds for a complete animation cycle.
+    public float animationLifetime = 1;
 
     //scale variables
     [HideInInspector] public bool animateScale = false;
@@ -62,7 +62,7 @@ public class AnimateObject : MonoBehaviour
         while (true)
         {
             //increase time which is used in animating.
-            time += Time.deltaTime / animationPeriod;
+            time += Time.deltaTime / animationLifetime;
 
             //scale anim
             if (animateScale)
