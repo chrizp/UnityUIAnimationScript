@@ -2,49 +2,72 @@ using System.Collections;
 using UnityEngine;
 using UnityEditor;
 using UnityEngine.UI;
+using UnityEngine.EventSystems;
 
-public class AnimateObject : MonoBehaviour
+public class AnimateObject : MonoBehaviour, IPointerClickHandler
 {
     [Header("Animation Settings:")]
-    //loop the animation forever or not.
+    //should the animation loop forever or not.
     public bool loop = false;
-    //if the animation should play each time the game object is enabled.
+    //should the animation play each time the game object is enabled.
     public bool animateOnEnable = false;
+    //should the gameObject be disabled after completing an animation cycle.
+    public bool disableOnCompletion = false;
+    //should the animation play each time the player clicks the ui.
+    public bool animateOnClick = false;
     //lifetime in seconds for a complete animation cycle.
     public float animationLifetime = 1;
 
+    //the transform that will be animated with pos and scale.
+    //automatically referenced in awake if not assigned.
+    [SerializeField] public Transform animatedTransform;
+
+    //the color graphics object that will be animated with color.
+    //automatically referenced in awake if not assigned.
+    [SerializeField] public Graphic animatedGraphic;
+
     //scale variables
-    [HideInInspector] public bool animateScale = false;
-    [HideInInspector] public bool linkedScale = false;
-    [HideInInspector] public AnimationCurve xScale = new AnimationCurve(new Keyframe(0f, 1f), new Keyframe(1f, 1f));
-    [HideInInspector] public AnimationCurve yScale = new AnimationCurve(new Keyframe(0f, 1f), new Keyframe(1f, 1f));
+    [SerializeField][HideInInspector] private bool animateScale = false;
+    [SerializeField][HideInInspector] private bool linkedScale = false;
+    [SerializeField][HideInInspector] private AnimationCurve xScale = new AnimationCurve(new Keyframe(0f, 1f), new Keyframe(1f, 1f));
+    [SerializeField][HideInInspector] private AnimationCurve yScale = new AnimationCurve(new Keyframe(0f, 1f), new Keyframe(1f, 1f));
 
     //position variables
-    [HideInInspector] public bool animatePos = false;
-    [HideInInspector] public AnimationCurve xPos = new AnimationCurve(new Keyframe(0f, 0f), new Keyframe(1f, 0f));
-    [HideInInspector] public AnimationCurve yPos = new AnimationCurve(new Keyframe(0f, 0), new Keyframe(1f, 0f));
+    [SerializeField][HideInInspector] private bool animatePos = false;
+    [SerializeField][HideInInspector] public AnimationCurve xPos = new AnimationCurve(new Keyframe(0f, 0f), new Keyframe(1f, 0f));
+    [SerializeField][HideInInspector] public AnimationCurve yPos = new AnimationCurve(new Keyframe(0f, 0), new Keyframe(1f, 0f));
 
     //rotation variables
-    [HideInInspector] public bool animateRotation = false;
-    [HideInInspector] public AnimationCurve zRot = new AnimationCurve(new Keyframe(0f, 0f), new Keyframe(1f, 0f));
+    [SerializeField][HideInInspector] private bool animateRotation = false;
+    [SerializeField][HideInInspector] private AnimationCurve zRot = new AnimationCurve(new Keyframe(0f, 0f), new Keyframe(1f, 0f));
 
     //color variables
-    [HideInInspector] public bool animateColor = false;
-    [HideInInspector] public Gradient colorGradient = new Gradient();
-    [HideInInspector] public Graphic colorObj;
+    [SerializeField][HideInInspector] private bool animateColor = false;
+    [SerializeField][HideInInspector] private Gradient colorGradient = new Gradient();
 
     private float time = 0;
     private Vector2 defaultPos;
 
     private void Awake()
     {
-        if (colorObj == null) colorObj = gameObject.GetComponent<Graphic>();
-        defaultPos = transform.localPosition;
+        if (animatedTransform == null) animatedTransform = transform;
+        if (animatedGraphic == null) animatedGraphic = gameObject.GetComponent<Graphic>();   
+        SetDefaultPos(transform.localPosition);
+    }
+
+    public void SetDefaultPos(Vector2 pos)
+    {
+        defaultPos = pos;
     }
 
     private void OnEnable()
     {
         if (animateOnEnable) Animate();
+    }
+
+    public void OnPointerClick(PointerEventData data)
+    {
+        if (animateOnClick) Animate();
     }
 
     //call this method to animate object.
@@ -67,22 +90,23 @@ public class AnimateObject : MonoBehaviour
             //scale anim
             if (animateScale)
             {
-                if (linkedScale) transform.localScale = Vector2.one * xScale.Evaluate(time);
+                if (linkedScale) animatedTransform.transform.localScale = Vector2.one * xScale.Evaluate(time);
                 else transform.localScale = (Vector2.right * xScale.Evaluate(time)) + (Vector2.up * yScale.Evaluate(time));
             }
 
             //pos anim
-            if (animatePos) transform.localPosition = defaultPos + ((Vector2.right * xPos.Evaluate(time)) + (Vector2.up * yPos.Evaluate(time)));
+            if (animatePos) animatedTransform.transform.localPosition = defaultPos + ((Vector2.right * xPos.Evaluate(time)) + (Vector2.up * yPos.Evaluate(time)));
 
             //rotation anim
-            if (animateRotation) transform.rotation = Quaternion.Euler(0, 0, zRot.Evaluate(time));
+            if (animateRotation) animatedTransform.transform.rotation = Quaternion.Euler(0, 0, zRot.Evaluate(time));
 
             //color anim
-            if (animateColor) colorObj.color = colorGradient.Evaluate(time);
+            if (animateColor) animatedGraphic.color = colorGradient.Evaluate(time);
 
             if (time >= 1)
             {
                 if (loop) time = 0;
+                else if (disableOnCompletion) gameObject.SetActive(false);
                 else yield break;
             }
 
@@ -93,6 +117,7 @@ public class AnimateObject : MonoBehaviour
 
 #if UNITY_EDITOR
 [CustomEditor(typeof(AnimateObject))]
+[CanEditMultipleObjects]
 public class AnimateObjectEditor : Editor
 {
     SerializedProperty animateScale;
