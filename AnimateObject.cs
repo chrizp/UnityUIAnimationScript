@@ -90,15 +90,15 @@ public class AnimateObject : MonoBehaviour, IPointerClickHandler
             //scale anim
             if (animateScale)
             {
-                if (linkedScale) animatedTransform.transform.localScale = Vector2.one * xScale.Evaluate(time);
-                else transform.localScale = (Vector2.right * xScale.Evaluate(time)) + (Vector2.up * yScale.Evaluate(time));
+                if (linkedScale) animatedTransform.localScale = Vector2.one * xScale.Evaluate(time);
+                else animatedTransform.localScale = (Vector2.right * xScale.Evaluate(time)) + (Vector2.up * yScale.Evaluate(time));
             }
 
             //pos anim
-            if (animatePos) animatedTransform.transform.localPosition = defaultPos + ((Vector2.right * xPos.Evaluate(time)) + (Vector2.up * yPos.Evaluate(time)));
+            if (animatePos) animatedTransform.localPosition = defaultPos + ((Vector2.right * xPos.Evaluate(time)) + (Vector2.up * yPos.Evaluate(time)));
 
             //rotation anim
-            if (animateRotation) animatedTransform.transform.rotation = Quaternion.Euler(0, 0, zRot.Evaluate(time));
+            if (animateRotation) animatedTransform.rotation = Quaternion.Euler(0, 0, zRot.Evaluate(time));
 
             //color anim
             if (animateColor) animatedGraphic.color = colorGradient.Evaluate(time);
